@@ -32,8 +32,8 @@ bazel-*
 
 # Intellij
 out
-.idea
-.iml
+*.idea
+*.iml
 
 # Gradle
 .gradle
