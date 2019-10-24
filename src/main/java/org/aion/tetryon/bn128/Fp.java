@@ -6,6 +6,9 @@ import java.math.BigInteger;
  * Represents an element of field F_p.
  */
 public class Fp {
+    // an element in Fp can be encoded in 32 bytes
+    public static int ELEMENT_SIZE = 32;
+
     public static final BigInteger FIELD_MODULUS = new BigInteger("21888242871839275222246405745257275088696311157297823662689037894645226208583");
 
     public final BigInteger c0;

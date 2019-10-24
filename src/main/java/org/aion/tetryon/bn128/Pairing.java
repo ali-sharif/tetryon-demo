@@ -4,9 +4,6 @@ import avm.AltBn128;
 
 import java.math.BigInteger;
 
-import static org.aion.tetryon.bn128.Util.G1_POINT_SIZE;
-import static org.aion.tetryon.bn128.Util.G2_POINT_SIZE;
-
 
 /**
  * A library of pairing utilities.
@@ -46,12 +43,12 @@ public class Pairing {
             throw new IllegalArgumentException("Points are not in pair");
         }
 
-        byte[] g1ListData = new byte[p1.length * G1_POINT_SIZE];
-        byte[] g2ListData = new byte[p1.length * G2_POINT_SIZE];
+        byte[] g1ListData = new byte[p1.length * G1.POINT_SIZE];
+        byte[] g2ListData = new byte[p1.length * G2.POINT_SIZE];
 
         for (int i = 0; i < p1.length; i++) {
-            System.arraycopy(Util.serializeG1(p1[i]), 0, g1ListData, i*G1_POINT_SIZE, G1_POINT_SIZE);
-            System.arraycopy(Util.serializeG2(p2[i]), 0, g2ListData, i*G2_POINT_SIZE, G2_POINT_SIZE);
+            System.arraycopy(G1.serialize(p1[i]), 0, g1ListData, i*G1.POINT_SIZE, G1.POINT_SIZE);
+            System.arraycopy(G2.serialize(p2[i]), 0, g2ListData, i*G2.POINT_SIZE, G2.POINT_SIZE);
         }
 
         return AltBn128.isPairingProdEqualToOne(g1ListData, g2ListData);

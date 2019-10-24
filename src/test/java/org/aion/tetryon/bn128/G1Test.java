@@ -14,8 +14,6 @@ import org.junit.runners.JUnit4;
 
 import java.math.BigInteger;
 
-import static org.aion.tetryon.bn128.Util.deserializeG1;
-import static org.aion.tetryon.bn128.Util.serializeG1;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
@@ -25,17 +23,17 @@ public class G1Test {
     public static class G1TestWrapper {
         @Callable
         public static byte[] negate(byte[] p) {
-            return serializeG1(G1.negate(deserializeG1(p)));
+            return G1.serialize(G1.negate(G1.deserialize(p)));
         }
 
         @Callable
         public static byte[] add(byte[] p1, byte[] p2) throws Exception {
-            return serializeG1(G1.add(deserializeG1(p1), deserializeG1(p2)));
+            return G1.serialize(G1.add(G1.deserialize(p1), G1.deserialize(p2)));
         }
 
         @Callable
         public static byte[] mul(byte[] p, BigInteger s) throws Exception {
-            return serializeG1(G1.mul(deserializeG1(p), s));
+            return G1.serialize(G1.mul(G1.deserialize(p), s));
         }
     }
 
@@ -63,13 +61,13 @@ public class G1Test {
         G1Point a = new G1Point(ax, ay);
         G1Point b = new G1Point(bx, by);
 
-        byte[] txData = ABIUtil.encodeMethodArguments("add", serializeG1(a), serializeG1(b));
+        byte[] txData = ABIUtil.encodeMethodArguments("add", G1.serialize(a), G1.serialize(b));
         AvmRule.ResultWrapper r = avmRule.call(sender, contract, BigInteger.ZERO, txData);
         Assert.assertTrue(r.getReceiptStatus().isSuccess());
 
         byte[] result = new ABIDecoder(r.getTransactionResult().copyOfTransactionOutput().orElseThrow()).decodeOneByteArray();
 
-        G1Point c = deserializeG1(result);
+        G1Point c = G1.deserialize(result);
         assertEquals(c.x, cx);
         assertEquals(c.y, cy);
     }
@@ -83,13 +81,13 @@ public class G1Test {
         G1Point p = new G1Point(px, py);
         BigInteger s = new BigInteger("30586f85e8fcea91c0db1ed30aacf7350e72efd4cf756b3ce309f2159e275ff9", 16);
 
-        byte[] txData = ABIUtil.encodeMethodArguments("mul", serializeG1(p), s);
+        byte[] txData = ABIUtil.encodeMethodArguments("mul", G1.serialize(p), s);
         AvmRule.ResultWrapper r = avmRule.call(sender, contract, BigInteger.ZERO, txData);
         Assert.assertTrue(r.getReceiptStatus().isSuccess());
 
         byte[] result = new ABIDecoder(r.getTransactionResult().copyOfTransactionOutput().orElseThrow()).decodeOneByteArray();
 
-        G1Point q = deserializeG1(result);
+        G1Point q = G1.deserialize(result);
 
         assertEquals(q.x, qx);
         assertEquals(q.y, qy);

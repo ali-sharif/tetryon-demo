@@ -21,12 +21,12 @@ public class PairingTest {
 
         @Callable
         public static boolean pairingProd1(byte[] a1, byte[] a2) throws Exception {
-            return Pairing.pairingProd1(deserializeG1(a1), deserializeG2(a2));
+            return Pairing.pairingProd1(G1.deserialize(a1), G2.deserialize(a2));
         }
 
         @Callable
         public static boolean pairingProd2(byte[] a1, byte[] a2, byte[] b1, byte[] b2) throws Exception {
-            return Pairing.pairingProd2(deserializeG1(a1), deserializeG2(a2), deserializeG1(b1), deserializeG2(b2));
+            return Pairing.pairingProd2(G1.deserialize(a1), G2.deserialize(a2), G1.deserialize(b1), G2.deserialize(b2));
         }
     }
 
@@ -59,7 +59,7 @@ public class PairingTest {
                 new BigInteger("020401d78e6fe746fe3d9512f9b4eedcfdd7eb5d08e307f1d6ee5d38f9a253ec", 16));
         G2Point g2 = new G2Point(g2x, g2y);
 
-        byte[] txData = ABIUtil.encodeMethodArguments("pairingProd2", serializeG1(g11), serializeG2(g2), serializeG1(g12), serializeG2(g2));
+        byte[] txData = ABIUtil.encodeMethodArguments("pairingProd2", G1.serialize(g11), G2.serialize(g2), G1.serialize(g12), G2.serialize(g2));
         AvmRule.ResultWrapper r = avmRule.call(sender, contract, BigInteger.ZERO, txData);
         assertTrue(r.getReceiptStatus().isSuccess());
 

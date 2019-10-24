@@ -13,9 +13,9 @@ import java.util.Arrays;
  * Circuit accepts two arguments (private: a, public: b); generates proof for statement a^2 == b
  * (i.e. I know some 'a', such that a^2 == b, for some publicly known 'b', without revealing the value for 'a').
  */
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class G16SquarePreimage {
-    public static final int WORD_SIZE=32;
+
 
     protected static class VerifyingKey {
         public final G1Point alpha;
@@ -46,25 +46,25 @@ public class G16SquarePreimage {
 
         // serialized as a | b | c
         public byte[] serialize() {
-            byte[] s = new byte[WORD_SIZE*8];
+            byte[] s = new byte[Fp.ELEMENT_SIZE*8];
 
-            byte[] a = Util.serializeG1(this.a);
-            byte[] b = Util.serializeG2(this.b);
-            byte[] c = Util.serializeG1(this.c);
+            byte[] a = G1.serialize(this.a);
+            byte[] b = G2.serialize(this.b);
+            byte[] c = G1.serialize(this.c);
 
             System.arraycopy(a, 0, s, 0, a.length);
-            System.arraycopy(b, 0, s, 6*WORD_SIZE - b.length, b.length);
-            System.arraycopy(c, 0, s, 8*WORD_SIZE - c.length, c.length);
+            System.arraycopy(b, 0, s, 6*Fp.ELEMENT_SIZE - b.length, b.length);
+            System.arraycopy(c, 0, s, 8*Fp.ELEMENT_SIZE - c.length, c.length);
 
             return s;
         }
 
         public static Proof deserialize(byte[] data) {
-            Blockchain.require(data.length == 8*WORD_SIZE);
+            Blockchain.require(data.length == 8*Fp.ELEMENT_SIZE);
 
-            G1Point a = Util.deserializeG1(Arrays.copyOfRange(data, 0, 2*WORD_SIZE));
-            G2Point b = Util.deserializeG2(Arrays.copyOfRange(data, 2*WORD_SIZE, 6*WORD_SIZE));
-            G1Point c = Util.deserializeG1(Arrays.copyOfRange(data, 6*WORD_SIZE, 8*WORD_SIZE));
+            G1Point a = G1.deserialize(Arrays.copyOfRange(data, 0, 2*Fp.ELEMENT_SIZE));
+            G2Point b = G2.deserialize(Arrays.copyOfRange(data, 2*Fp.ELEMENT_SIZE, 6*Fp.ELEMENT_SIZE));
+            G1Point c = G1.deserialize(Arrays.copyOfRange(data, 6*Fp.ELEMENT_SIZE, 8*Fp.ELEMENT_SIZE));
 
             return new Proof(a, b, c);
         }

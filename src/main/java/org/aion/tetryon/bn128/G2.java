@@ -1,6 +1,7 @@
 package org.aion.tetryon.bn128;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 /**
  * A collection of Elliptic Curve operations on G2 for alt_bn128.
@@ -10,6 +11,41 @@ import java.math.BigInteger;
  * Ported from https://github.com/musalbas/solidity-BN256G2/blob/master/BN256G2.sol
  */
 public class G2 {
+
+    // points in G2, encoded like so: [p1[0].x || p1[0].y || p1[1].x || p2[1].y || p2[0].x]. Each coordinate is 32-byte aligned.
+    public static int POINT_SIZE = 4 * Fp.ELEMENT_SIZE;
+
+    public static byte[] serialize(G2Point p) {
+        byte[] data = new byte[POINT_SIZE]; // zero byte array
+
+        byte[] px1 = p.x.a.toByteArray();
+        System.arraycopy(px1, 0, data, Fp.ELEMENT_SIZE*1 - px1.length, px1.length);
+
+        byte[] px2 = p.x.b.toByteArray();
+        System.arraycopy(px2, 0, data, Fp.ELEMENT_SIZE*2 - px2.length, px2.length);
+
+        byte[] py1 = p.y.a.toByteArray();
+        System.arraycopy(py1, 0, data, Fp.ELEMENT_SIZE*3 - py1.length, py1.length);
+
+        byte[] py2 = p.y.b.toByteArray();
+        System.arraycopy(py2, 0, data, Fp.ELEMENT_SIZE*4 - py2.length, py2.length);
+        return data;
+    }
+
+    public static G2Point deserialize(byte[] data) {
+
+        byte[] px1Data = Arrays.copyOfRange(data, 0, Fp.ELEMENT_SIZE);
+        byte[] px2Data = Arrays.copyOfRange(data, 1*Fp.ELEMENT_SIZE, 2*Fp.ELEMENT_SIZE);
+        byte[] py1Data = Arrays.copyOfRange(data, 2*Fp.ELEMENT_SIZE, 3*Fp.ELEMENT_SIZE);
+        byte[] py2Data = Arrays.copyOfRange(data, 3*Fp.ELEMENT_SIZE, data.length);
+
+        Fp2 x = new Fp2(new BigInteger(px1Data), new BigInteger(px2Data));
+        Fp2 y = new Fp2(new BigInteger(py1Data), new BigInteger(py2Data));
+
+        G2Point p = new G2Point(x, y);
+
+        return p;
+    }
 
     public static final Fp2 TWIST_B = new Fp2(
             new BigInteger("2b149d40ceb8aaae81be18991be06ac3b5b4c5e559dbefa33267e6dc24a138e5", 16),
