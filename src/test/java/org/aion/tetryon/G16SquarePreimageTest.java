@@ -25,7 +25,9 @@ public class G16SquarePreimageTest {
     public static void deployDapp() {
         byte[] g16DappBytes = avmRule.getDappBytes(G16SquarePreimage.class, null, 1,
                 Fp.class, Fp2.class, G1.class, G1Point.class, G2.class, G2Point.class, Pairing.class, Util.class);
-        contract = avmRule.deploy(sender, BigInteger.ZERO, g16DappBytes).getDappAddress();
+        AvmRule.ResultWrapper w = avmRule.deploy(sender, BigInteger.ZERO, g16DappBytes);
+        Assert.assertTrue (w.getTransactionResult().energyUsed < 1_500_000);
+        contract = w.getDappAddress();
     }
 
     // positive test-case for square pre-image verifier: a=337, b=113569 (a^2 == b)
@@ -51,12 +53,14 @@ public class G16SquarePreimageTest {
                 new BigInteger("0000000000000000000000000000000000000000000000000000000000000001", 16)};
 
         byte[] txData = ABIUtil.encodeMethodArguments("verify", input, new G16SquarePreimage.Proof(a, b, c).serialize());
-        AvmRule.ResultWrapper r = avmRule.call(sender, contract, BigInteger.ZERO, txData);
+        AvmRule.ResultWrapper w = avmRule.call(sender, contract, BigInteger.ZERO, txData);
 
         // transaction should succeed
-        Assert.assertTrue(r.getReceiptStatus().isSuccess());
+        Assert.assertTrue(w.getReceiptStatus().isSuccess());
+        // transaction should not cost too much
+        Assert.assertTrue(w.getTransactionResult().energyUsed < 500_000);
         // verify should return "true"
-        Assert.assertTrue(new ABIDecoder(r.getTransactionResult().copyOfTransactionOutput().orElseThrow()).decodeOneBoolean());
+        Assert.assertTrue(new ABIDecoder(w.getTransactionResult().copyOfTransactionOutput().orElseThrow()).decodeOneBoolean());
     }
 
     // negative test-case for square pre-image verifier: a=337, b=113570 (a^2 != b)
@@ -82,12 +86,14 @@ public class G16SquarePreimageTest {
                 new BigInteger("0000000000000000000000000000000000000000000000000000000000000000", 16)};
 
         byte[] txData = ABIUtil.encodeMethodArguments("verify", input, new G16SquarePreimage.Proof(a, b, c).serialize());
-        AvmRule.ResultWrapper r = avmRule.call(sender, contract, BigInteger.ZERO, txData);
+        AvmRule.ResultWrapper w = avmRule.call(sender, contract, BigInteger.ZERO, txData);
 
         // transaction should succeed
-        Assert.assertTrue(r.getReceiptStatus().isSuccess());
+        Assert.assertTrue(w.getReceiptStatus().isSuccess());
+        // transaction should not cost too much
+        Assert.assertTrue(w.getTransactionResult().energyUsed < 500_000);
         // verify should return "false"
-        Assert.assertFalse(new ABIDecoder(r.getTransactionResult().copyOfTransactionOutput().orElseThrow()).decodeOneBoolean());
+        Assert.assertFalse(new ABIDecoder(w.getTransactionResult().copyOfTransactionOutput().orElseThrow()).decodeOneBoolean());
     }
 
     @Test
