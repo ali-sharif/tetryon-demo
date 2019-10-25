@@ -29,8 +29,6 @@ public class Fp {
         return c0.equals(BigInteger.ZERO);
     }
 
-    // TODO: implement field operations
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
